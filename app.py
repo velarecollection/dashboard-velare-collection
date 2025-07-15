@@ -59,4 +59,3 @@ st.plotly_chart(engajamento_fig, use_container_width=True)
 
 # Rodapé
 st.caption("Dados carregados do Google Sheets | Velare Dashboard")
-
