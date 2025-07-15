@@ -44,14 +44,19 @@ else:
 
 # Gráfico de produtos mais clicados
 st.subheader("🌟 Produtos mais clicados")
-if "produto_clicado" in df_filtrado.columns and not df_filtrado["produto_clicado"].dropna().empty:
-    prod_fig = px.bar(df_filtrado["produto_clicado"].value_counts().reset_index(),
-                      x="index", y="produto_clicado",
-                      labels={"index": "Produto", "produto_clicado": "Cliques"},
-                      title="Produtos mais clicados")
-    st.plotly_chart(prod_fig, use_container_width=True)
+
+if "produto_clicado" in df_filtrado.columns:
+    df_prod = df_filtrado["produto_clicado"].dropna()
+    if not df_prod.empty:
+        contagem = df_prod.value_counts().reset_index()
+        contagem.columns = ["Produto", "Cliques"]
+        prod_fig = px.bar(contagem, x="Produto", y="Cliques",
+                          title="Produtos mais clicados")
+        st.plotly_chart(prod_fig, use_container_width=True)
+    else:
+        st.info("Nenhum dado disponível para 'Produtos mais clicados' com os filtros atuais.")
 else:
-    st.info("Nenhum dado disponível para 'Produtos mais clicados' com os filtros atuais.")
+    st.warning("A coluna 'produto_clicado' não foi encontrada nos dados.")
 
 # Gráfico de origem do tráfego
 st.subheader("📅 Origem do Tráfego")
