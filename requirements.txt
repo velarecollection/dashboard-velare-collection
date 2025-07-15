@@ -1,11 +1,10 @@
 streamlit
 pandas
 matplotlib
-
-streamlit
 gspread
 oauth2client
-pandas
+streamlit_gsheets
+
 
 
 import streamlit as st
