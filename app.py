@@ -1,33 +1,50 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from streamlit_gsheets import GSheetsConnection
+import gspread
+from google.oauth2.service_account import Credentials
+import json
+import os
 
 st.set_page_config(page_title="Dashboard Velare", layout="wide")
-st.title("📊 Dashboard Velare Collection")
+st.title("📊 Dashboard Velare Collection <3")
 
-# Conexão com Google Sheets
-conn = st.connection("gsheets", type=GSheetsConnection)
-
-# URLs das planilhas
-urls = {
-    'Tráfego do Site': 'https://docs.google.com/spreadsheets/d/1GOW31v8keYSaIqJDajgP-Z5683WO77c98KrNq80oN_o/edit#gid=0',
-    'Produtos Mais Clicados': 'https://docs.google.com/spreadsheets/d/1AfgZZKFYG-fYXI5KxnC9ysGOZavc7ZJNof1sxdUiObE/edit#gid=0',
-    'Redes Sociais': 'https://docs.google.com/spreadsheets/d/1P1Zj_z0_0Wc_xq95napA3gFw5o9qckJCeSMdnXxtTSw/edit#gid=0',
-    'Conversão Simulada': 'https://docs.google.com/spreadsheets/d/1ddq02T2wq5uq-GnPYPk6awN2EUEQxYbr39UCHK0zyfs/edit#gid=0'
+# Carregar credenciais do Secrets
+service_account_info = {
+    "type": st.secrets["gcp_service_account"]["type"],
+    "project_id": st.secrets["gcp_service_account"]["project_id"],
+    "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+    "private_key": st.secrets["gcp_service_account"]["private_key"].replace("\\n", "\n"),
+    "client_email": st.secrets["gcp_service_account"]["client_email"],
+    "client_id": st.secrets["gcp_service_account"]["client_id"],
+    "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+    "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+    "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+    "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"],
 }
 
-# Função auxiliar
-def carregar_dados(url):
-    return conn.read(spreadsheet=url, worksheet="Página1")
+credentials = Credentials.from_service_account_info(service_account_info, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"])
+gc = gspread.authorize(credentials)
 
-# Tabs do dashboard
-aba = st.tabs(["📈 Tráfego", "🔥 Produtos Clicados", "📱 Redes Sociais", "💰 Conversões"])
+# URLs das planilhas (só usar a parte do ID da planilha)
+spreadsheet_ids = {
+    'Tráfego do Site': '1GOW31v8keYSaIqJDajgP-Z5683WO77c98KrNq80oN_o',
+    'Produtos Mais Clicados': '1AfgZZKFYG-fYXI5KxnC9ysGOZavc7ZJNof1sxdUiObE',
+    'Redes Sociais': '1P1Zj_z0_0Wc_xq95napA3gFw5o9qckJCeSMdnXxtTSw',
+    'Conversão Simulada': '1ddq02T2wq5uq-GnPYPk6awN2EUEQxYbr39UCHK0zyfs'
+}
 
-# ----------- ABA 1 - Tráfego -----------
-with aba[0]:
-    df_trafego = carregar_dados(urls['Tráfego do Site'])
+def carregar_dados(spreadsheet_id, worksheet_name="Página1"):
+    sh = gc.open_by_key(spreadsheet_id)
+    worksheet = sh.worksheet(worksheet_name)
+    data = worksheet.get_all_records()
+    return pd.DataFrame(data)
+
+# UI Tabs
+abas = st.tabs(["📈 Tráfego", "🔥 Produtos Clicados", "📱 Redes Sociais", "💰 Conversões"])
+
+with abas[0]:
+    df_trafego = carregar_dados(spreadsheet_ids['Tráfego do Site'])
     st.subheader("Visão Geral do Tráfego")
     st.dataframe(df_trafego)
 
@@ -36,9 +53,8 @@ with aba[0]:
         graf = px.line(df_trafego, x='Data', y='Visitantes', title='Evolução de Visitantes')
         st.plotly_chart(graf, use_container_width=True)
 
-# ----------- ABA 2 - Produtos Clicados -----------
-with aba[1]:
-    df_produtos = carregar_dados(urls['Produtos Mais Clicados'])
+with abas[1]:
+    df_produtos = carregar_dados(spreadsheet_ids['Produtos Mais Clicados'])
     st.subheader("Produtos Mais Clicados")
     st.dataframe(df_produtos)
 
@@ -47,9 +63,8 @@ with aba[1]:
                       x='Produto', y='Cliques', title='Top Produtos Clicados')
         st.plotly_chart(graf, use_container_width=True)
 
-# ----------- ABA 3 - Redes Sociais -----------
-with aba[2]:
-    df_redes = carregar_dados(urls['Redes Sociais'])
+with abas[2]:
+    df_redes = carregar_dados(spreadsheet_ids['Redes Sociais'])
     st.subheader("Desempenho nas Redes Sociais")
     st.dataframe(df_redes)
 
@@ -61,9 +76,8 @@ with aba[2]:
                       title=f'Alcance por Campanha - {rede}')
         st.plotly_chart(graf, use_container_width=True)
 
-# ----------- ABA 4 - Conversão Simulada -----------
-with aba[3]:
-    df_conv = carregar_dados(urls['Conversão Simulada'])
+with abas[3]:
+    df_conv = carregar_dados(spreadsheet_ids['Conversão Simulada'])
     st.subheader("Conversão Simulada")
     st.dataframe(df_conv)
 
