@@ -4,7 +4,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="Dashboard Velare", layout="wide")
-st.title("📊 Dashboard Velare Collection <3")
+st.title("📊 Dashboard Velare Collection")
 
 # Autenticação com escopos definidos
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
