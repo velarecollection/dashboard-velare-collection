@@ -1,48 +1,4 @@
 streamlit
 pandas
-matplotlib
-gspread
-oauth2client
+plotly
 streamlit_gsheets
-
-
-
-import streamlit as st
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import pandas as pd
-
-# Função para carregar planilha do Google Sheets
-@st.cache_data(ttl=3600)
-def carregar_planilha(url, creds_json_path):
-    scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name(creds_json_path, scope)
-    client = gspread.authorize(creds)
-    spreadsheet = client.open_by_url(url)
-    sheet = spreadsheet.get_worksheet(0)
-    data = sheet.get_all_records()
-    df = pd.DataFrame(data)
-    return df
-
-st.title("Dashboard Dinâmico com Google Sheets")
-
-# Caminho para o arquivo JSON da sua Service Account (local)
-credenciais = "credenciais.json"
-
-# URLs das planilhas públicas (mesmo que só visualizador)
-urls = {
-    'trafego_site': 'https://docs.google.com/spreadsheets/d/1GOW31v8keYSaIqJDajgP-Z5683WO77c98KrNq80oN_o/edit?usp=sharing',
-    'produtos_mais_clicados': 'https://docs.google.com/spreadsheets/d/1AfgZZKFYG-fYXI5KxnC9ysGOZavc7ZJNof1sxdUiObE/edit?usp=sharing',
-    'redes_sociais': 'https://docs.google.com/spreadsheets/d/1P1Zj_z0_0Wc_xq95napA3gFw5o9qckJCeSMdnXxtTSw/edit?usp=sharing',
-    'conversao_simulada': 'https://docs.google.com/spreadsheets/d/1ddq02T2wq5uq-GnPYPk6awN2EUEQxYbr39UCHK0zyfs/edit?usp=sharing'
-}
-
-# Escolha qual planilha carregar
-planilha = st.selectbox("Selecione a planilha para visualizar:", list(urls.keys()))
-
-# Carrega e mostra o dataframe
-df = carregar_planilha(urls[planilha], credenciais)
-
-st.write(f"Dados da planilha: {planilha}")
-st.dataframe(df)
-
