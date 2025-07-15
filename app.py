@@ -58,5 +58,5 @@ engajamento_fig = px.bar(df_filtrado.groupby("tipo_conteudo")["curtidas"].mean()
 st.plotly_chart(engajamento_fig, use_container_width=True)
 
 # Rodapé
- st.caption("Dados carregados do Google Sheets | Velare Dashboard")
+st.caption("Dados carregados do Google Sheets | Velare Dashboard")
 
