@@ -13,7 +13,10 @@ credentials = Credentials.from_service_account_info(service_account_info, scopes
 gc = gspread.authorize(credentials)
 
 # Abertura da planilha
-sheet = gc.open_by_key("1GOW31v8keYSaIqJDajgP-Z5683WO77c98KrNq80oN_o").sheet1
+#sheet = gc.open_by_key("1GOW31v8keYSaIqJDajgP-Z5683WO77c98KrNq80oN_o").sheet1
+sheet = gc.open_by_key("1vp5nkA44k-9phsKwLe_Qj5R_gur8QxGg").sheet1
 data = pd.DataFrame(sheet.get_all_records())
 
 st.dataframe(data)
+
+
