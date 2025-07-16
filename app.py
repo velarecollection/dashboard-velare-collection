@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(page_title="Dashboard Velare", layout="wide")
-st.title("📊 Dashboard Velare Collection - Gráficos Interativos")
+st.title("📊 Dashboard Velare Collection")
 
 # Carrega dados do Google Sheets (formato CSV público)
 csv_url = "https://docs.google.com/spreadsheets/d/1GOW31v8keYSaIqJDajgP-Z5683WO77c98KrNq80oN_o/export?format=csv&gid=0"
